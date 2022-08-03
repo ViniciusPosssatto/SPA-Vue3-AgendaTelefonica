@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="https://raw.githubusercontent.com/Templarian/MaterialDesign/3175cefb403dc32e147b240c010f3944a8d8f76c/svg/account-box-multiple.svg" type="image/x-icon">
+        <!-- CSS bootstrap -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+        <title>Lista de contatos</title>
+        <style>
+            body{
+                background-color: grey;
+            }
+            .cards {
+                max-width: 280px;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .card-row {
+                max-width: 1000px;
+                margin-top: 2px;
+            }
+            .ddd-11 {
+                background-color: #00c6fc;
+            }
+            /*Transições de entrada e saída*/
+            .lista-contatos-leave-to,
+            .lista-contatos-enter-from {
+                opacity: 0;
+                font-size: 0;
+            }
+            .lista-contatos-leave-from,
+            .lista-contatos-enter-to {
+                opacity: 1;
+                font-size: 16px;
+            }
+            .lista-contatos-leave-active,
+            .lista-contatos-enter-active {
+                transition: all 1s ease;
+            }
+            /*responsividade para celulares*/
+            @media(max-width: 435px) {
+                .imge {
+                    display: none;
+                }
+                .pxd {
+                    padding-right: 0 !important;
+                }
+                .gapx {
+                    gap: 2px !important;
+                }
+                .center {
+                    text-align: center;
+                }
+            }
+            @media(max-width: 575px) {
+                .justify-content-around {
+                    margin: auto !important;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <!--NavBar-->
+            <nav class="navbar navbar-dark bg-dark justify-content-center">
+                <div class="navbar m-auto center">
+                    <img 
+                        class="imge" 
+                        alt="imagem de contato" 
+                        width="50" 
+                        height="50"
+                        src="https://raw.githubusercontent.com/Templarian/MaterialDesign/3175cefb403dc32e147b240c010f3944a8d8f76c/svg/account-box-multiple.svg" 
+                    >
+                    <h3 class="text-white">Bem vindo a sua Lista de Contatos</h3>
+                </div>
+                <div class="navbar m-auto">
+                    <button 
+                        class="btn btn-primary fw-bold" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#modal-cadastro"
+                    >
+                        Novo Contato
+                        <img 
+                            width="30"
+                            height="30"
+                            alt="imagem de contato"
+                            src="https://img.icons8.com/external-happy-man-bomsymbols-/344/external-add-happy-man-human-resource-and-life-style-color-set-1-happy-man-bomsymbols-.png">
+                        </img>
+                    </button>
+                </div>
+                <div class="navbar m-auto">
+                    <form class="input-group">
+                        <input 
+                            class="form-control me-2" 
+                            type="search" 
+                            :onkeyup="barra_pesquisa()" 
+                            placeholder="Pesquisar pelo nome" 
+                            aria-label="Search" 
+                            v-model="busca_contato"
+                        >
+                    </form>
+                </div>
+            </nav>
+
+            <!--Display list content-->
+            <div class="text-center mt-5 text-white p-5" v-if="lista_contatos.length === 0">
+                <h4>Ops...</h4>
+                <h6>Parece que não há contatos na sua lista! Adicione um para começar.</h6>
+            </div>
+            <div class="container mt-3" v-else>
+                <div class="row justify-content-around">
+                    <transition-group name="lista-contatos">
+                        <div 
+                            class="dropdown-menu position-static d-flex justify-content-center align-items-stretch rounded-3 shadow-lg card-row" 
+                            v-for="(item) in (lista_pesquisados.length === 0 ? lista_contatos : lista_pesquisados)" 
+                                :key="item" 
+                                :class="item.ddd == true ? 'ddd-11' : ''"
+                            >
+                            <nav class="d-grid gapx gap-2 col-5 d-flex align-items-center gap-3 py-2 px-3 lh-sm text-start">
+                                <img
+                                    width="40" 
+                                    height="40" 
+                                    src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+                                </img>
+                                <div>
+                                    <strong class="d-block" v-text="item.nome"></strong> 
+                                </div>
+                            </nav>
+                            <nav class="d-grid gap-2 pxd col-4 cards d-flex justify-content-center align-items-center gap-3 py-2 px-3 lh-sm text-start" >
+                                <div>
+                                    <strong class="d-block" v-text="item.telefone"></strong> 
+                                </div>
+                            </nav>
+                            <nav class="d-grid gap-2 col-3 cards d-flex justify-content-center align-items-center" >
+                                <a href="#" 
+                                    class="btn btn-outline-primary border-0 rounded-2 d-flex align-items-center gap-3 py-2 px-3 lh-sm text-start" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modal-cadastro" 
+                                    @click="editar_contato(item)"
+                                >
+                                    <img 
+                                        width="32" 
+                                        height="32" 
+                                        src="https://cdn-icons-png.flaticon.com/512/1159/1159633.png">
+                                    </img>
+                                </a>
+                                <a href="#" 
+                                    class="btn btn-outline-danger border-0 rounded-2 d-flex align-items-center gap-3 py-2 px-3 lh-sm text-start" 
+                                    data-bs-toggle="modal" data-bs-target="#modal-exclusao" 
+                                    @click="remover_contato(item)"
+                                >
+                                    <img
+                                        width="32" 
+                                        height="32" 
+                                        src="https://cdn-icons-png.flaticon.com/512/709/709519.png">
+                                    </img>
+                                </a>
+                            </nav>
+                        </div>
+                    </transition-group>
+                </div>
+            </div>
+            <!--Modal de cadastro e edição-->
+            <div 
+                class="modal fade" 
+                id="modal-cadastro" 
+                tabindex="-1" 
+                data-bs-backdrop="static" 
+                aria-labelledby="staticBackdropLabel" 
+                aria-hidden="true"
+            >
+                <div class="modal-dialog">
+                    <div class="modal-content rounded-5 bg-dark">
+                        <div class="modal-header center p-5 pb-4 border-bottom-0">
+                            <h2 class="fw-bold mb-0 text-white">Informações do contato</h2>
+                        </div>
+                        <v-form 
+                            id="form-novo-contato"  
+                            @submit="(editar ? salvar_edicao() : add_new_contato())" 
+                            v-slot="{ meta }"
+                        >
+                            <div class="modal-body p-5 pt-0">
+                                <hr class="my-4 text-white">
+                                <div class="row text-center">
+                                    <div class="form mb-3 col-sm-12 col-md-6 col-lg-6">
+                                        <label class="fw-semibold text-white" name="nome">Nome</label>
+                                        <v-field
+                                            name="nome" 
+                                            rules="required|nomeCompleto|max:30|alpha_spaces" 
+                                            type="text" 
+                                            class="form-control rounded-4 text-center" 
+                                            id="Inputnome" 
+                                            v-model="contato.nome">
+                                        </v-field>
+                                        <error-message 
+                                            class="fw-semibold text-danger" 
+                                            name="nome">
+                                        </error-message>
+                                        <br>
+                                    </div>
+                                    <div class="form mb-3 col-sm-12 col-md-6 col-lg-6">
+                                        <label class="fw-semibold text-white" name="telefone" for="telefone">Telefone</label>
+                                        <v-field 
+                                            class="form-control rounded-4  text-center" 
+                                            name="telefone"  
+                                            id="telefone" 
+                                            rules="required|min:14" 
+                                            type="tel"
+                                            maxlength="15" 
+                                            id="telefone" 
+                                            v-model="contato.telefone">
+                                        </v-field>
+                                        <error-message class="fw-semibold text-danger" name="telefone"></error-message>
+                                        <br>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-center">
+                                <button type="submit" class="btn btn-primary" :disabled="!(meta.valid)" data-bs-dismiss="modal" v-if="editar">Salvar edições</button>
+                                <button type="submit" class="btn btn-primary" :disabled="!(meta.valid)" data-bs-dismiss="modal" v-else>Salvar novo contato</button>
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="cancelar()">Cancelar</button>
+                            </div>
+                        </v-form>
+                    </div>
+                </div>
+            </div>
+            <!--Modal de exclusão-->
+            <div 
+                class="modal fade" 
+                id="modal-exclusao" 
+                tabindex="-1" 
+                data-bs-backdrop="static" 
+                aria-labelledby="staticBackdropLabel" 
+                aria-hidden="true"
+            >
+                <div class="modal-dialog">
+                    <div class="modal-content rounded-5 bg-dark">
+                        <div class="modal-header p-5 center pb-4 border-bottom-0">
+                            <h2 class="fw-bold mb-0 text-white">Deseja remover o contato:</h2>
+                        </div>
+                        <div class="modal-body p-5 pt-0 pb-0">
+                            <hr class="my-4 text-white">
+                            <div class="row text-center">
+                                <div class="form mb-3 col-sm-12 col-md-6 col-lg-6">
+                                    <span class="fw-semibold text-white" v-text="contato.nome"></span>
+                                </div>
+                                <div class="form mb-3 col-sm-12 col-md-6 col-lg-6">
+                                    <span class="fw-semibold text-white" v-text="contato.telefone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" @click="salvar_remocao_contato()">Confirmar</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="cancelar()">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+            <!--Vue3 CDN-->
+            <script src="https://unpkg.com/vue@next"></script>
+            <!--Bootstrap JS-->
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+            <!--VeeValidate CDN-->
+            <script src="https://unpkg.com/vee-validate@next"></script>
+            <script src="https://unpkg.com/@vee-validate/rules@next"></script>
+            <script src="https://unpkg.com/@vee-validate/i18n@next"></script>
+
+        <script>
+            // importa veevalidate
+            const { defineRule, Form, Field, ErrorMessage, configure, useForm, useField } = VeeValidate
+            const { setLocale, loadLocaleFromURL, localize } = VeeValidateI18n
+
+            Object.keys(VeeValidateRules.default).forEach(rule => {
+                defineRule(rule, VeeValidateRules[rule])
+                })
+
+            loadLocaleFromURL('https://unpkg.com/@vee-validate/i18n@4.6.2/dist/locale/pt_BR.json')
+
+            configure({
+                generateMessage: localize('pt_BR')
+            })
+
+            // Inplanta a mascara (##) #####-#### no campo telefone
+            function mascara(o,f){
+                v_obj=o
+                v_fun=f
+                setTimeout("execmascara()", 1)
+            }
+            function execmascara(){
+                v_obj.value=v_fun(v_obj.value)
+            }
+            function mtel(v){
+                v=v.replace(/\D/g,"");
+                v=v.replace(/^(\d{2})(\d)/g,"($1) $2");
+                v=v.replace(/(\d)(\d{4})$/,"$1-$2");
+                return v;
+            }
+            window.onload = function(){
+                document.getElementById('telefone').onkeyup = function(){
+                    mascara( this, mtel );
+                }
+            }
+
+            //Cria a instância do Vue3
+            const app = Vue.createApp({
+                components: {
+                    VForm: Form,
+                    VField: Field,
+                    ErrorMessage,
+                },
+                data() {
+                    
+                    defineRule("nomeCompleto", value => {
+                        if(/^([a-zA-Zá-úÁ-Úã-õ0-9]{3,})+(?:\s[a-zA-Zá-úÁ-Úã-õ0-9]{2,})+$/.test(value)) {
+                            return true;
+                        }
+                        return 'Digite o nome completo!'
+                    });
+                    
+                    return {
+                        editar: false,
+                        contato: {
+                            nome: '',
+                            telefone: '',
+                            ddd: false,
+                            id: Date.now()
+                        },
+                        lista_contatos: [],
+                        busca_contato: '',
+                        lista_pesquisados: []
+                    }
+                },
+                methods: {
+                    save_localStorage() {
+                        localStorage.setItem('lista_contatos', JSON.stringify(this.lista_contatos))
+                    },
+                    reset_contato_object() {
+                        this.contato = {
+                            nome: '',
+                            telefone: '',
+                            ddd: false,
+                            id: Date.now()
+                        }
+                    },
+                    add_new_contato() {
+                        if (this.contato.telefone.slice(1,3) == 11) {
+                                this.contato.ddd = true;
+                            }
+                        this.lista_contatos.push(this.contato)
+                        this.save_localStorage()
+                        this.reset_contato_object()                   
+                    },
+                    editar_contato(item) {
+                        this.editar = true;
+                        this.contato = item
+                    },
+                    salvar_edicao() {
+                        if (this.contato.telefone.slice(1,3) == 11) {
+                            this.contato.ddd = true;
+                        } else {
+                            this.contato.ddd = false;
+                        }
+                        for(var i = 0; i < this.lista_contatos.length; i++) {
+                            if (this.lista_contatos[i].id == this.contato.id) {
+                                this.lista_contatos[i] = this.contato
+                            }
+                        }
+                        this.editar = false
+                        this.save_localStorage()
+                        this.reset_contato_object()
+                    },
+                    cancelar() {
+                        this.editar = false
+                        this.reset_contato_object()
+                    },
+                    remover_contato(item) {
+                        this.contato = item
+                    },
+                    salvar_remocao_contato() {
+                        for(var i = 0; i < this.lista_contatos.length; i++) {
+                            if (this.lista_contatos[i].id == this.contato.id) {
+                                this.lista_contatos.splice(i, 1);
+                            } 
+                        }
+                        this.reset_contato_object()
+                        this.save_localStorage()
+                    },
+                    barra_pesquisa() {
+                        if(this.busca_contato !== '') {
+                            let pesquisa = () => {
+                                return this.lista_contatos.filter(item => 
+                                    item.nome
+                                    .toLowerCase()
+                                        .includes(this.busca_contato.toLowerCase()));
+                                    }
+                            this.lista_pesquisados = pesquisa(this.busca_contato);
+                        } else {
+                            return this.lista_pesquisados = []
+                        }
+                    }
+                },
+                mounted() {
+                    this.lista_contatos = localStorage.getItem('lista_contatos') ? JSON.parse(localStorage.getItem('lista_contatos')) : []
+                }
+            })
+            app.mount('#app')
+        </script>
+    </body>
+</html>
