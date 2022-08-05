@@ -1,6 +1,6 @@
 # SPA-Vue3-AgendaTelefonica
 
-<p>A página foi baseada em uma lista de requisitos e funcionalidades para uma agenda telefonica, sendo eles:</p>
+<p>A página foi baseada em uma lista de requisitos e funcionalidades para uma lista telefônica, sendo eles:</p>
 
 - Deve ser construída em uma única página HTML.
 - Botão para adicionar novo contato;
@@ -14,5 +14,11 @@
 
 <p>A página foi construída em framework Vue3, utilizando a biblioteca vee-validate para validações no formulário e bootstrap para construção do template.</p>
 <p>Foi adicionado um campo de busca, o qual procura contatos na lista a partir de qualquer letra ou palavra que for colocado.</p>
-<p>A lista de contatos está sendo salva no localStorage do navegador para que a manipulação dos dados seja mais parecida com um bando de dados.</p>
-<p>Por fim foi utilizado cores que combinam com o template e um estilo de lista "comum" para os usuários.</p>
+<p>A lista de contatos está sendo salva no localStorage do navegador para que a manipulação dos dados seja mais parecida com um banco de dados.</p>
+<p>Por fim foi utilizado cores que destacam os detalhes com o template e um estilo de lista "padrão" que os usuários estão acostumados a encontrar.</p>
+
+
+## Como executar
+
+<p> Fazer o fork do repositório ou apenas copiar o código para um arquivo .html e abrir no navegador.</p>
+<p> O código está aberto para qualquer pessoa que deseje testar ou utilizar a página para seu determinado fim.</p>
